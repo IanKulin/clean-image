@@ -1,10 +1,6 @@
-import { test, describe } from "node:test";
-import assert from "node:assert";
-import { createRequire } from "node:module";
-
-// Use createRequire to import CommonJS module from ES module
-const require = createRequire(import.meta.url);
-const { stripQueryParameters } = require("../background.js");
+const { test, describe } = require("node:test");
+const assert = require("node:assert");
+const { stripQueryParameters } = require("../utils.js");
 
 describe("stripQueryParameters", () => {
   test("removes query parameters from HTTP URL", () => {
@@ -94,6 +90,110 @@ describe("stripQueryParameters", () => {
       "blob:https://example.com/550e8400-e29b-41d4-a716-446655440000?param=value";
     const expected =
       "blob:https://example.com/550e8400-e29b-41d4-a716-446655440000";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with encoded characters in path", () => {
+    const input = "https://example.com/images/my%20image%20file.jpg?size=large";
+    const expected = "https://example.com/images/my%20image%20file.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with encoded characters in query params", () => {
+    const input = "https://example.com/image.jpg?name=my%20file&type=photo";
+    const expected = "https://example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles file:// URLs", () => {
+    const input = "file:///Users/username/Pictures/image.jpg?timestamp=123";
+    const expected = "file:///Users/username/Pictures/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles ftp:// URLs", () => {
+    const input = "ftp://files.example.com/images/photo.png?mode=binary";
+    const expected = "ftp://files.example.com/images/photo.png";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with multiple consecutive question marks", () => {
+    const input = "https://example.com/image.jpg??param=value";
+    const expected = "https://example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with multiple consecutive hash symbols", () => {
+    const input = "https://example.com/image.jpg##section1";
+    const expected = "https://example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with hash before query params", () => {
+    const input = "https://example.com/image.jpg#section?param=value";
+    const expected = "https://example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles very long URLs", () => {
+    const longParam = "a".repeat(1000);
+    const input = `https://example.com/image.jpg?longparam=${longParam}`;
+    const expected = "https://example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with special characters in domain", () => {
+    const input = "https://xn--fsq.example.com/image.jpg?param=value"; // internationalized domain
+    const expected = "https://xn--fsq.example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles empty string", () => {
+    const input = "";
+    const expected = "";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles whitespace-only string", () => {
+    const input = "   ";
+    const expected = "   ";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URL with just protocol", () => {
+    const input = "https://?param=value";
+    // This might throw in URL constructor, testing fallback behavior
+    const result = stripQueryParameters(input);
+    assert.strictEqual(result, "https://");
+  });
+
+  test("handles URL with authentication", () => {
+    const input = "https://username:password@example.com/image.jpg?size=large";
+    const expected = "https://username:password@example.com/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles URLs with non-standard ports", () => {
+    const input = "https://example.com:443/image.jpg?param=value"; // standard HTTPS port
+    const expected = "https://example.com:443/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles localhost URLs", () => {
+    const input = "http://localhost:3000/image.jpg?dev=true";
+    const expected = "http://localhost:3000/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles IP address URLs", () => {
+    const input = "http://192.168.1.1:8080/image.jpg?param=value";
+    const expected = "http://192.168.1.1:8080/image.jpg";
+    assert.strictEqual(stripQueryParameters(input), expected);
+  });
+
+  test("handles IPv6 URLs", () => {
+    const input = "http://[2001:db8::1]/image.jpg?param=value";
+    const expected = "http://[2001:db8::1]/image.jpg";
     assert.strictEqual(stripQueryParameters(input), expected);
   });
 });

@@ -1,3 +1,6 @@
+// Import the utility function
+const { stripQueryParameters } = require('./utils.js');
+
 // Create the context menu item when the extension starts
 browser.contextMenus.create({
   id: "open-clean-image",
@@ -24,21 +27,3 @@ browser.contextMenus.onClicked.addListener((info, tab) => {
       });
   }
 });
-
-// Function to remove query parameters from URL
-function stripQueryParameters(url) {
-  try {
-    const urlObj = new URL(url);
-    // Return just the origin + pathname (no search params or hash)
-    return urlObj.origin + urlObj.pathname;
-  } catch (error) {
-    // Fallback for malformed URLs - just split on '?'
-    console.warn("Could not parse URL:", url, error);
-    return url.split("?")[0].split("#")[0];
-  }
-}
-
-// Export for tests
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = { stripQueryParameters };
-}
