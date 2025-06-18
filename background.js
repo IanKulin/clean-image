@@ -37,3 +37,8 @@ function stripQueryParameters(url) {
     return url.split("?")[0].split("#")[0];
   }
 }
+
+// Export for tests
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { stripQueryParameters };
+}
