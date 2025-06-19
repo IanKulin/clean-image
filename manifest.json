@@ -5,8 +5,9 @@
   "description": "Open images in new tabs with query parameters stripped",
 
   "permissions": ["contextMenus", "tabs"],
+  "incognito": "spanning",
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["utils.js", "background.js"]
   }
 }

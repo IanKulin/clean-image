@@ -1,6 +1,3 @@
-// Import the utility function
-const { stripQueryParameters } = require('./utils.js');
-
 // Create the context menu item when the extension starts
 browser.contextMenus.create({
   id: "open-clean-image",
