@@ -1,8 +1,21 @@
-const { test, describe } = require("node:test");
+const { test, describe, beforeEach, afterEach } = require("node:test");
 const assert = require("node:assert");
 const { stripQueryParameters } = require("../utils.js");
 
 describe("stripQueryParameters", () => {
+  let originalConsoleLog;
+  
+  beforeEach(() => {
+    // Store the original console.log and replace it with a no-op function
+    originalConsoleLog = console.log;
+    console.log = () => {};
+  });
+  
+  afterEach(() => {
+    // Restore the original console.log after each test
+    console.log = originalConsoleLog;
+  });
+
   test("removes query parameters from HTTP URL", () => {
     const input = "https://example.com/image.jpg?param1=value1&param2=value2";
     const expected = "https://example.com/image.jpg";
