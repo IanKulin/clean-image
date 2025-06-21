@@ -1,7 +1,7 @@
 
-## Project Overview
+## Clean Image Opener
 
-This is a Firefox browser extension called "Clean Image Opener" that allows users to open images in new tabs with query parameters stripped from the URL. The extension adds a context menu item when right-clicking on images.
+A Firefox browser extension that allows users to open images in new tabs with query parameters stripped from the URL. The extension adds a context menu item when right-clicking on images.
 
 ## Architecture
 
